@@ -66,7 +66,7 @@ class GeoSchelling(mesa.Model):
 
         # Set up the grid with patches for every NUTS region
         ac = mg.AgentCreator(SchellingAgent, model=self)
-        agents = ac.from_file("data/nuts_rg_60M_2013_lvl_2.geojson")
+        agents = ac.from_file("data/nyct2020manhattan.geojson")
         self.space.add_agents(agents)
 
         # Set up agents
