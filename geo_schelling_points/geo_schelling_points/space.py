@@ -20,9 +20,9 @@ class Nuts2Eu(mg.GeoSpace):
         total_area = 0
         for agent in agents:
             self._id_region_map[agent.unique_id] = agent
-            total_area += agent.SHAPE_AREA
+            total_area += agent.Shape_Area
         for _, agent in self._id_region_map.items():
-            agent.SHAPE_AREA = agent.SHAPE_AREA / total_area * 100.0
+            agent.Shape_Area = agent.Shape_Area / total_area * 100.0
 
     def add_person_to_region(self, person, region_id):
         person.region_id = region_id
