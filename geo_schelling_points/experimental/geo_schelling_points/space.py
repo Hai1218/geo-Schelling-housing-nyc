@@ -6,7 +6,7 @@ import mesa_geo as mg
 from .agents import RegionAgent
 
 
-class CensusTract(mg.GeoSpace):
+class Nuts2Eu(mg.GeoSpace):
     _id_region_map: Dict[str, RegionAgent]
     num_people: int
 

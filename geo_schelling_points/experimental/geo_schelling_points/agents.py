@@ -5,19 +5,9 @@ from shapely.geometry import Point
 
 
 class PersonAgent(mg.GeoAgent):
-    """
-    Schelling People agent
-    
-    They are represented as points within Census Tracts; 
-    [Pending] They have various similarity threshold to begin with; 
-    [Pending] Once the treshold is reached, they move to another random
-    Census Tract with similarity lower than its;
-    """
-    
     SIMILARITY_THRESHOLD = 0.3
 
     def __init__(self, unique_id, model, geometry, crs, is_red, region_id):
-        
         super().__init__(unique_id, model, geometry, crs)
         self.is_red = is_red
         self.region_id = region_id

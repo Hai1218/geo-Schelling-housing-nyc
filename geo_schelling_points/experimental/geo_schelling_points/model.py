@@ -1,10 +1,11 @@
 import random
 import uuid
+
 import mesa
 import mesa_geo as mg
 
 from .agents import PersonAgent, RegionAgent
-from .space import CensusTract
+from .space import Nuts2Eu
 
 
 class GeoSchellingPoints(mesa.Model):
@@ -15,7 +16,7 @@ class GeoSchellingPoints(mesa.Model):
         PersonAgent.SIMILARITY_THRESHOLD = similarity_threshold
 
         self.schedule = mesa.time.RandomActivation(self)
-        self.space = CensusTract()
+        self.space = Nuts2Eu()
 
         self.datacollector = mesa.DataCollector(
             {"unhappy": "unhappy", "happy": "happy"}
