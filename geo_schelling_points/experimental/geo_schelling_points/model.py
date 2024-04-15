@@ -5,30 +5,40 @@ import mesa
 import mesa_geo as mg
 
 from .agents import PersonAgent, RegionAgent
-from .space import Nuts2Eu
+from .space import CensusTract
 
 
 class GeoSchellingPoints(mesa.Model):
-    def __init__(self, red_percentage=0.5, similarity_threshold=0.5):
-        super().__init__()
-
+    def __init__(
+        self, 
+        red_percentage=0.5, 
+        similarity_threshold=0.5,
+        seed=None,
+    ):
+        
+        super().__init__(seed=seed)
         self.red_percentage = red_percentage
         PersonAgent.SIMILARITY_THRESHOLD = similarity_threshold
 
         self.schedule = mesa.time.RandomActivation(self)
-        self.space = Nuts2Eu()
+        self.space = CensusTract()
 
         self.datacollector = mesa.DataCollector(
             {"unhappy": "unhappy", "happy": "happy"}
         )
 
-        # Set up the grid with patches for every NUTS region
+        # Set up the grid with patches for census tract
         ac = mg.AgentCreator(RegionAgent, model=self)
         regions = ac.from_file(
             "data/nyct2020manhattan.geojson", unique_id="GEOID"
         )
         self.space.add_regions(regions)
-
+        
+        
+        # Set up agents
+        # Iterate through regions (Census Tract)
+        # For each region, place init_num_people of People agents
+        # Within 
         for region in regions:
             for _ in range(region.init_num_people):
                 person = PersonAgent(
@@ -45,6 +55,7 @@ class GeoSchellingPoints(mesa.Model):
         self.datacollector.collect(self)
 
     @property
+    #Check the # of unhappy people agents in the model
     def unhappy(self):
         num_unhappy = 0
         for agent in self.space.agents:
@@ -53,6 +64,7 @@ class GeoSchellingPoints(mesa.Model):
         return num_unhappy
 
     @property
+    #Check the # of happy people agents in the model
     def happy(self):
         return self.space.num_people - self.unhappy
 
