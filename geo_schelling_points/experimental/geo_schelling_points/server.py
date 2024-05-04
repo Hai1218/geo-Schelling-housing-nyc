@@ -11,37 +11,34 @@ class HappyElement(mesa.visualization.TextElement):
         return f"Happy agents: {model.happy}"
 
 
-class UnhappyElement(mesa.visualization.TextElement):
+class MovementElement(mesa.visualization.TextElement):
     def render(self, model):
-        return f"Unhappy agents: {model.unhappy}"
+        return f"Total movements: {model.movement}"
 
 
 model_params = {
-    "red_percentage": mesa.visualization.Slider("% red", 0.5, 0.00, 1.0, 0.05),
-    "similarity_threshold": mesa.visualization.Slider(
-        "% similar wanted", 0.5, 0.00, 1.0, 0.05
-    ),
+    "rent_discount": mesa.visualization.Slider("% Discount", 0.1, 0.2, 0,3, 0.4),
 }
 
 
 def schelling_draw(agent):
     portrayal = {}
     if isinstance(agent, RegionAgent):
-        if agent.red_cnt > agent.blue_cnt:
-            portrayal["color"] = "Red"
-        elif agent.red_cnt < agent.blue_cnt:
+        if agent.housing_quality > 80:
             portrayal["color"] = "Blue"
+        elif agent.housing_quality < 40:
+            portrayal["color"] = "Red"
         else:
             portrayal["color"] = "Grey"
     elif isinstance(agent, PersonAgent):
         portrayal["radius"] = 1
         portrayal["shape"] = "circle"
-        portrayal["color"] = "Red" if agent.is_red else "Blue"
+        portrayal["color"] = "Red" if agent.income_level < 0.3 else "Blue"
     return portrayal
 
 
 happy_element = HappyElement()
-unhappy_element = UnhappyElement()
+movement_element = MovementElement()
 map_element = mg.visualization.MapModule(
     schelling_draw, tiles=xyz.CartoDB.Positron
 )
@@ -56,7 +53,7 @@ happy_chart = mesa.visualization.ChartModule(
 )
 server = mesa.visualization.ModularServer(
     GeoSchellingPoints,
-    [map_element, happy_element, unhappy_element, happy_chart],
+    [map_element, happy_element, movement_element, happy_chart],
     "Schelling",
     model_params,
 )

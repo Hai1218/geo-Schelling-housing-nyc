@@ -1,14 +1,14 @@
 import random
 from typing import Dict
-
 import mesa_geo as mg
 
 from .agents import RegionAgent
-
+from .agents import PersonAgent
 
 class CensusTract(mg.GeoSpace):
     _id_region_map: Dict[str, RegionAgent]
     num_people: int
+
 
     def __init__(self):
         super().__init__(warn_crs_conversion=False)
@@ -22,7 +22,7 @@ class CensusTract(mg.GeoSpace):
             self._id_region_map[agent.unique_id] = agent
             total_area += agent.Shape_Area
         for _, agent in self._id_region_map.items():
-            agent.Shape_Area = agent.Shape_Area / total_area * 100.0
+            agent.Shape_Area = agent.Shape_Area / total_area * 100.0           
 
     def add_person_to_region(self, person, region_id):
         person.region_id = region_id
@@ -37,8 +37,20 @@ class CensusTract(mg.GeoSpace):
         super().remove_agent(person)
         self.num_people -= 1
 
-    def get_random_region_id(self) -> str:
-        return random.choice(list(self._id_region_map.keys()))
-
     def get_region_by_id(self, region_id) -> RegionAgent:
         return self._id_region_map.get(region_id)
+    
+    def get_random_region_id(self) -> str:
+        return random.choice(list(self._id_region_map.keys()))
+    
+    def get_regions_by_condition(self, min_quality, max_rent):
+        return [region for region in self._id_region_map.values() if
+                region.housing_quality >= min_quality and region.rent_price <= max_rent]
+    
+    def get_agents_within_region(self, region):
+        """
+        Retrieve all PersonAgents within the geographic bounds of a given RegionAgent.
+        This method assumes that regions are polygons and agents have point geometries.
+        """
+        agents_within = [agent for agent in self.agents if isinstance(agent, PersonAgent) and region.geometry.contains(agent.geometry)]
+        return agents_within
