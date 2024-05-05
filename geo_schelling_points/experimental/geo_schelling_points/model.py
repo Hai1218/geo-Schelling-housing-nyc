@@ -6,7 +6,8 @@ import numpy as np
 
 from .agents import PersonAgent, RegionAgent
 from .space import CensusTract
-
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 class GeoSchellingPoints(mesa.Model):
     def __init__(self, 
@@ -24,13 +25,9 @@ class GeoSchellingPoints(mesa.Model):
         # Set up the grid with patches for every census tract
         ac = mg.AgentCreator(RegionAgent, model=self)
         regions = ac.from_file(
-            "data/nyct2020manhattan.geojson", unique_id="GEOID"
+            "data/nuts.geojson", unique_id="NUTS_ID"
         )
         
-        for region in regions:
-            region.rent_regulated = random.choice([True, False])
-            region.initial_quality = random.uniform(50, 10)
-
         self.space.add_regions(regions)
            
         for region in regions:
@@ -44,7 +41,10 @@ class GeoSchellingPoints(mesa.Model):
                     region_id=region.unique_id,
                 )
                 self.space.add_person_to_region(person, region_id=region.unique_id)
+                logging.debug(f"person {person.unique_id} income is {person.income_level}.")
+                
                 self.schedule.add(person)
+            self.schedule.add(region)
 
         self.datacollector.collect(self)
 
@@ -68,10 +68,31 @@ class GeoSchellingPoints(mesa.Model):
             if isinstance(agent, PersonAgent):
                 num_movement += agent.move_count
         return num_movement
+    
+    @property
+    def renovations(self):
+        num_renovations = 0
+        for agent in self.space.agents:
+            if isinstance(agent, RegionAgent):
+                num_renovations += agent.renovations
+        return num_renovations
 
     @property
-    def happy(self):
-        return self.space.num_people - self.unhappy
+    def displacement(self):
+        num_displacement= 0
+        for agent in self.space.agents:
+            if isinstance(agent, PersonAgent):
+                num_displacement += agent.displacement_count
+        return num_displacement
+    
+    @property
+    def displaced(self):
+        num_displaced= 0
+        for agent in self.space.agents:
+            if isinstance(agent, PersonAgent):
+                if agent.is_displaced:
+                    num_displaced += 1
+        return num_displaced
 
     def step(self):
         self.schedule.step()

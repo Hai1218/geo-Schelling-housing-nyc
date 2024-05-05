@@ -20,9 +20,9 @@ class CensusTract(mg.GeoSpace):
         total_area = 0
         for agent in agents:
             self._id_region_map[agent.unique_id] = agent
-            total_area += agent.Shape_Area
+            total_area += agent.SHAPE_AREA
         for _, agent in self._id_region_map.items():
-            agent.Shape_Area = agent.Shape_Area / total_area * 100.0           
+            agent.SHAPE_AREA = agent.SHAPE_AREA / total_area * 100.0           
 
     def add_person_to_region(self, person, region_id):
         person.region_id = region_id
@@ -47,6 +47,9 @@ class CensusTract(mg.GeoSpace):
         return [region for region in self._id_region_map.values() if
                 region.housing_quality >= min_quality and region.rent_price <= max_rent]
     
+    def get_neighbors(self, region):
+        return super().get_intersecting_agents(region)   
+    
     def get_agents_within_region(self, region):
         """
         Retrieve all PersonAgents within the geographic bounds of a given RegionAgent.
@@ -54,3 +57,6 @@ class CensusTract(mg.GeoSpace):
         """
         agents_within = [agent for agent in self.agents if isinstance(agent, PersonAgent) and region.geometry.contains(agent.geometry)]
         return agents_within
+    
+    def get_region_id(self) ->str:
+        return self._id_region_map.keys()
