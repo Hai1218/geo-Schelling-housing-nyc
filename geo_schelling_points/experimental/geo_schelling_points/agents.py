@@ -112,7 +112,16 @@ class RegionAgent(mg.GeoAgent):
         #for region in self_and_neighbors:
 
         for region in self_neighbors:
-            all_residents.extend(region.model.space.get_agents_within_region(self))
+            all_residents.extend(region.model.space.get_agents_within_region(region))
+        
+        if all_residents:
+            return np.mean([resident.income_level for resident in all_residents])
+        return 0
+    
+    @property
+    def own_ami(self):
+        all_residents = []
+        all_residents.extend(self.model.space.get_agents_within_region(self))
         
         if all_residents:
             return np.mean([resident.income_level for resident in all_residents])
@@ -138,7 +147,7 @@ class RegionAgent(mg.GeoAgent):
     def step(self):
         # Increment step counter
         self.steps += 1
-        logging.debug(f"Region's rent regulation is {self.rent_regulated}, quality is {self.housing_quality},rent is {self.rent_price} and mean AMI is {self.average_ami}")
+        logging.debug(f"Region's rent regulation is {self.rent_regulated}, quality is {self.housing_quality},rent is {self.rent_price} and overall AMI is {self.average_ami}, own AMI is {self.own_ami}")
         self.decays()
         if self.housing_quality <= 50 and not self.rent_regulated:  # Assuming a threshold for renovation
             self.renovate()
